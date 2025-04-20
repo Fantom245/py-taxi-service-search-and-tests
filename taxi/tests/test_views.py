@@ -41,7 +41,10 @@ class PrivateManufacturerTest(TestCase):
         response = self.client.get(MANUFACTURER_LIST_URL)
         self.assertEqual(response.status_code, 200)
         manufacturers = Manufacturer.objects.all()
-        self.assertEqual(list(response.context["manufacturer_list"]), list(manufacturers))
+        self.assertEqual(
+            list(response.context["manufacturer_list"]),
+            list(manufacturers)
+        )
         self.assertTemplateUsed(response, "taxi/manufacturer_list.html")
 
 
@@ -71,7 +74,7 @@ class PrivateDriverTest(TestCase):
         self.assertTemplateUsed(response, "taxi/driver_list.html")
 
 
-class PrivateManufacturerTest(TestCase):
+class PrivateCarTest(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             username="test",
@@ -80,7 +83,10 @@ class PrivateManufacturerTest(TestCase):
         self.client.force_login(self.user)
 
     def test_retrive_car(self):
-        manufacturer = Manufacturer.objects.create(name="test1", country="test_contry_1")
+        manufacturer = Manufacturer.objects.create(
+            name="test1",
+            country="test_contry_1"
+        )
         driver = Driver.objects.create(
             username="Test",
             password="test123",
@@ -96,7 +102,10 @@ class PrivateManufacturerTest(TestCase):
         response = self.client.get(CAR_LIST_URL)
         self.assertEqual(response.status_code, 200)
         car = Car.objects.all()
-        self.assertEqual(list(response.context["car_list"]), list(car))
+        self.assertEqual(
+            list(response.context["car_list"]),
+            list(car)
+        )
         self.assertTemplateUsed(response, "taxi/car_list.html")
 
 
@@ -104,17 +113,33 @@ class SearchFeatureTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.driver1 = get_user_model().objects.create_user(
-            username="john_doe", password="test12345", license_number="ABC12345"
+            username="john_doe",
+            password="test12345",
+            license_number="ABC12345"
         )
         self.driver2 = get_user_model().objects.create_user(
-            username="alice_smith", password="test12345", license_number="XYZ67890"
+            username="alice_smith",
+            password="test12345",
+            license_number="XYZ67890"
         )
 
-        self.manufacturer1 = Manufacturer.objects.create(name="Toyota", country="Japan")
-        self.manufacturer2 = Manufacturer.objects.create(name="BMW", country="Germany")
+        self.manufacturer1 = Manufacturer.objects.create(
+            name="Toyota",
+            country="Japan"
+        )
+        self.manufacturer2 = Manufacturer.objects.create(
+            name="BMW",
+            country="Germany"
+        )
 
-        self.car1 = Car.objects.create(model="Camry", manufacturer=self.manufacturer1)
-        self.car2 = Car.objects.create(model="X5", manufacturer=self.manufacturer2)
+        self.car1 = Car.objects.create(
+            model="Camry",
+            manufacturer=self.manufacturer1
+        )
+        self.car2 = Car.objects.create(
+            model="X5",
+            manufacturer=self.manufacturer2
+        )
 
         self.car1.drivers.add(self.driver1)
         self.car2.drivers.add(self.driver2)
@@ -122,7 +147,9 @@ class SearchFeatureTests(TestCase):
         self.client.force_login(self.driver1)
 
     def test_driver_search_returns_correct_results(self):
-        response = self.client.get(reverse("taxi:driver-list") + "?username=john")
+        response = self.client.get(
+            reverse("taxi:driver-list") + "?username=john"
+        )
         self.assertContains(response, "john_doe")
         self.assertNotContains(response, "alice_smith")
 
@@ -142,12 +169,16 @@ class SearchFeatureTests(TestCase):
         self.assertContains(response, "Camry")
 
     def test_manufacturer_search_returns_correct_results(self):
-        response = self.client.get(reverse("taxi:manufacturer-list") + "?name=BMW")
+        response = self.client.get(
+            reverse("taxi:manufacturer-list") + "?name=BMW"
+        )
         self.assertContains(response, "BMW")
         self.assertNotContains(response, "Toyota")
 
     def test_manufacturer_search_empty_returns_all(self):
-        response = self.client.get(reverse("taxi:manufacturer-list") + "?name=")
+        response = self.client.get(
+            reverse("taxi:manufacturer-list") + "?name="
+        )
         self.assertContains(response, "BMW")
         self.assertContains(response, "Toyota")
 
